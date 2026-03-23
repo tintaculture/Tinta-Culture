@@ -1,3 +1,8 @@
+// Initialize EmailJS at the top
+(function() {
+    emailjs.init("nOlFTuXc-tAzsBCTT");
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     
     // Smooth scrolling for anchor links
@@ -29,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
-                // Optional: Stop observing once faded in
                 observer.unobserve(entry.target);
             }
         });
@@ -50,47 +54,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Newsletter Form Submission & Modal Logic
+    // Newsletter Form Submission using sendForm (More Reliable)
     const newsletterForm = document.getElementById('newsletterForm');
     const successModal = document.getElementById('successModal');
     const closeButtons = document.querySelectorAll('.close-modal, #closeModalBtn');
 
-    // EmailJS Initialization
-    emailjs.init("nOlFTuXc-tAzsBCTT");
-
     if(newsletterForm) {
         newsletterForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const emailInput = newsletterForm.querySelector('input[name="user_email"]');
-            const submitBtn = newsletterForm.querySelector('button[type="submit"]');
             
-            if(emailInput.value) {
-                // Visual Loading State
-                const originalText = submitBtn.textContent;
-                submitBtn.textContent = 'Sending...';
-                submitBtn.disabled = true;
+            const submitBtn = newsletterForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            // Visual Loading
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
 
-                // EmailJS Integration
-                const templateParams = {
-                    user_email: emailInput.value,
-                    message: "New subscriber for Tinta Culture!"
-                };
+            const emailInput = newsletterForm.querySelector('input[name="user_email"]');
+            const hiddenEmail = document.getElementById('hiddenEmail');
+            if(hiddenEmail) hiddenEmail.value = emailInput.value;
 
-                // Real EmailJS Call
-                emailjs.send('service_axeawap', 'template_yrr0ukg', templateParams)
-                    .then(function(response) {
-                       console.log('SUCCESS!', response.status, response.text);
-                       successModal.classList.add('active');
-                       newsletterForm.reset();
-                    }, function(error) {
-                       console.log('FAILED...', error);
-                       alert("Sorry, er is iets misgegaan bij het versturen. Probeer het later opnieuw.");
-                    })
-                    .finally(() => {
-                        submitBtn.textContent = originalText;
-                        submitBtn.disabled = false;
-                    });
-            }
+            // Uses the HTML Form directly for maximum reliability
+            emailjs.sendForm('service_axeawap', 'template_yrr0ukg', newsletterForm)
+                .then(function() {
+                    console.log('SUCCESS: Email Sent');
+                    successModal.classList.add('active');
+                    newsletterForm.reset();
+                }, function(error) {
+                    console.log('FAILED: ', error);
+                    alert("Fout bij versturen: " + JSON.stringify(error));
+                })
+                .finally(() => {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                });
         });
     }
 

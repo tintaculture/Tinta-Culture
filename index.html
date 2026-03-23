@@ -102,6 +102,8 @@
                 <p>Subscribe for early access to drops and exclusive content.</p>
                 <form class="newsletter-form" id="newsletterForm">
                     <input type="email" name="user_email" placeholder="Enter your email" required>
+                    <!-- Fallback hidden input to catch templates looking for 'email' -->
+                    <input type="hidden" name="email" id="hiddenEmail">
                     <button type="submit" class="btn-secondary">Subscribe</button>
                 </form>
             </div>
